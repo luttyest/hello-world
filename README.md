@@ -1,3 +1,1 @@
-# hello-world
-firstone
-ibhrnsipearvgnwa
+# netural network research
