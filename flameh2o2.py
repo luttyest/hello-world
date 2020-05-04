@@ -69,9 +69,8 @@ def flamespeedcal(test):
     #f.save('h2_adiabatic.xml','multi', 'solution with multicomponent transport')
 
     # write the velocity, temperature, density, and mole fractions to a CSV file
-    output = "file_"+str(avalue)+"_"+str(pressureindex) + \
-        "_"+str(tempindex)+"_"+".csv"
-    #f.write_csv(output, quiet=False)
+    output = "file_"+str(avalue)+"_"+str(pressureindex)+"_"+str(tempindex)+"_"+".csv"
+    f.write_csv(output, quiet=False)
     print('multicomponent flamespeed = {0:7f} m/s'.format(f.u[0]))
     outputlist = []
     #convert csv to numpy
