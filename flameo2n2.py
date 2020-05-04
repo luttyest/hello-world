@@ -33,7 +33,7 @@ flamespeed = []
 PressureS = 25  # 25
 Ipressure = np.zeros(PressureS)
 
-tempertureS = 31  # 31
+tempertureS = 9  # 31
 Itemperture = np.zeros(tempertureS)
 
 
@@ -74,10 +74,10 @@ def flamespeedcal(test):
 
     # write the velocity, temperature, density, and mole fractions to a CSV file
     output = "file_"+str(avalue)+"_"+str(pressureindex)+"_"+str(tempindex)+"_"+".csv"
-    #f.write_csv(output, quiet=False)
+    f.write_csv(output, quiet=False)
     print('multicomponent flamespeed = {0:7f} m/s'.format(f.u[0]))
     outputlist = []
-    #convert csv to numpy
+    #convert csv pandas
     data = pd.read_csv(output)
     #append order u,temp,rho
     u = data['u (m/s)'][0]

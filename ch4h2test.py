@@ -7,7 +7,7 @@ CH4:H2 defined by a 0 to 1
 
 # presurre from 1 to 50    25 times 
 # alist 1 to 10            10 times 
-# temperature 300 to 1800 every 50    30 times
+# temperature 300 to 700 every 50    9 times
 
 import sys
 import numpy as np
@@ -32,7 +32,7 @@ flamespeed = []
 PressureS = 25      #25
 Ipressure = np.zeros(PressureS)
 
-tempertureS = 31    #31
+tempertureS = 9    #9
 Itemperture = np.zeros(tempertureS)
 
 def flamespeedcal(test):
