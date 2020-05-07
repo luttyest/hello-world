@@ -3,7 +3,7 @@ A freely-propagating, premixed hydrogen flat flame with multicomponent
 transport properties.
 h2 to o2 0.5 to 2
 
-taks too 18084 seconds
+task took 18084 seconds
 """
 
 # presurre from 1 to 50    25 times
@@ -98,7 +98,9 @@ def flamespeedcal(test):
 
 # muti-processing
 def muti():
-    with ProcessPool() as pool:
+    results  = []
+
+    with ProcessPool(max_workers = 8) as pool:
         totallist = []
         for i in range(Ilist):
             aList[i] = 0.5+0.15*i
@@ -109,24 +111,26 @@ def muti():
                     totallist.append((aList[i], Ipressure[m], Itemperture[t]))
 
         future = pool.map(flamespeedcal, totallist, timeout = 10000)
+        iterator = future.result()
+        while True:
+            try:
+                result = next(iterator)
+                results.append(result)
+            except StopIteration:
+                break
+            except TimeoutError as error:
+                print("function took longer than %d seconds" % error.args[1])
+            except ProcessExpired as error:
+                print("%s. Exit code: %d" % (error, error.exitcode))
+            except Exception as error:
+                print("function raised %s" % error)
+                print(error.traceback)
 
-        results  = []
-        try:
-            for n in future.result():
-                results.append(n)
-        except TimeoutError as error:
-            print("function took longer than %d seconds" % error.args[1])
-        except ProcessExpired as error:
-            print("%s. Exit code: %d" % (error, error.exitcode))
-        except Exception as error:
-            print("function raised %s" % error)
-            print(error.traceback)
-
-        with open("finaloutput2data.csv", 'w') as outfile:
-            writer = csv.writer(outfile)
-            writer.writerow(["u(m/s)", "T(K)", "rho(kg/m3)", "pressure", "H2", "H", "O", "O2", "OH", "H2O", "HO2", "H2O2", "C", "CH", "CH2", "CH2(S)", "CH3", "CH4", "CO", "CO2", "HCO", "CH2O", "CH2OH", "CH3O", "CH3OH", "C2H", "C2H2",
-                             "C2H3", "C2H4", "C2H5", "C2H6", "HCCO", "CH2CO", "HCCOH", "N", "NH", "NH2", "NH3", "NNH", "NO", "NO2", "N2O", "HNO", "CN", "HCN", "H2CN", "HCNN", "HCNO", "HOCN", "HNCO", "NCO", "N2", "AR", "C3H7", "C3H8", "CH2CHO", "CH3CHO"])
-            writer.writerows(results)
+    with open("finaloutput2data.csv", 'w') as outfile:
+        writer = csv.writer(outfile)
+        writer.writerow(["u(m/s)", "T(K)", "rho(kg/m3)", "pressure", "H2", "H", "O", "O2", "OH", "H2O", "HO2", "H2O2", "C", "CH", "CH2", "CH2(S)", "CH3", "CH4", "CO", "CO2", "HCO", "CH2O", "CH2OH", "CH3O", "CH3OH", "C2H", "C2H2",
+                            "C2H3", "C2H4", "C2H5", "C2H6", "HCCO", "CH2CO", "HCCOH", "N", "NH", "NH2", "NH3", "NNH", "NO", "NO2", "N2O", "HNO", "CN", "HCN", "H2CN", "HCNN", "HCNO", "HOCN", "HNCO", "NCO", "N2", "AR", "C3H7", "C3H8", "CH2CHO", "CH3CHO"])
+        writer.writerows(results)
 
                 
 
@@ -153,24 +157,4 @@ def plot():
 if __name__ == '__main__':
     main()
 
-# with concurrent.futures.ThreadPoolExecutor() as executor:
-#     results = executor.map(flamespeedcal, TempList)
 
-#     for result in results:
-#         print(result)
-#         flamespeed.append(result)
-
-#     results = [executor.submit(flamespeedcal, temp) for temp in TempList]
-
-#     for f in concurrent.futures.as_completed(results):
-#         print(f.result())
-#         flamespeed.append(f.result())
-# for _ in range (ITemp):
-#     p = threading.Thread(target=flamespeedcal(Temp))
-#     p.start()
-#     TempList.append(Temp)
-#     Temp = Temp + 100
-#     threads.append(p)
-
-# for thread in threads:
-#     thread.join()
