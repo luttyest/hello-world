@@ -2,6 +2,8 @@
 A freely-propagating, premixed hydrogen flat flame with multicomponent
 transport properties.
 h2 to o2 0.5 to 2
+
+taks too 18084 seconds
 """
 
 # presurre from 1 to 50    25 times
@@ -24,15 +26,15 @@ Tin = 300.0  # unburned gas temperature [K]
 width = 0.03  # m
 loglevel = 1  # amount of diagnostic output (0 to 8)
 
-Ilist = 2   #10
+Ilist = 10   #10
 aList = np.zeros(Ilist)
 flamespeed = []
 # IdealGasMix object used to compute mixture properties, set to the state of the
 # upstream fuel-air mixture
-PressureS = 2  # 25
+PressureS = 25  # 25
 Ipressure = np.zeros(PressureS)
 
-tempertureS = 2  # 9
+tempertureS = 9  # 9
 Itemperture = np.zeros(tempertureS)
 
 
@@ -71,7 +73,7 @@ def flamespeedcal(test):
 
     # write the velocity, temperature, density, and mole fractions to a CSV file
     output = "file_"+str(avalue)+"_"+str(pressureindex) + "_"+str(tempindex)+"_"+".csv"
-    #f.write_csv(output, quiet=False)
+    f.write_csv(output, quiet=False)
     print('multicomponent flamespeed = {0:7f} m/s'.format(f.u[0]))
     outputlist = []
     #convert csv to numpy
@@ -109,22 +111,16 @@ def muti():
         future = pool.map(flamespeedcal, totallist, timeout = 10000)
 
         results  = []
-        while True:
-            try:
-                for n in future.result():
-                    results.append(n)
-            except StopIteration:
-                break
-            except TimeoutError as error:
-                print("function took longer than %d seconds" % error.args[1])
-                continue
-            except ProcessExpired as error:
-                print("%s. Exit code: %d" % (error, error.exitcode))
-                continue
-            except Exception as error:
-                print("function raised %s" % error)
-                print(error.traceback)
-                continue
+        try:
+            for n in future.result():
+                results.append(n)
+        except TimeoutError as error:
+            print("function took longer than %d seconds" % error.args[1])
+        except ProcessExpired as error:
+            print("%s. Exit code: %d" % (error, error.exitcode))
+        except Exception as error:
+            print("function raised %s" % error)
+            print(error.traceback)
 
         with open("finaloutput2data.csv", 'w') as outfile:
             writer = csv.writer(outfile)
