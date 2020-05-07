@@ -39,11 +39,7 @@ tempertureS = 9    #9
 Itemperture = np.zeros(tempertureS)
 
 def flamespeedcal(test):
-    L = list(test)
-    print(L)
-    avalue = L[0]
-    pressureindex = L[1] 
-    tempindex = L[2] 
+    avalue, pressureindex, tempindex = test
     gas = ct.Solution('gri30.xml')
     pressureoutput = pressureindex*ct.one_atm
     gas.TP = tempindex, pressureoutput
@@ -135,13 +131,13 @@ def muti():
                 errorcode.append("function raised %s" % error)
                 errorcode.append(error.traceback)
 
-    with open("finaloutput2data.csv", 'w') as outfile:
+    with open("finaloutputdata.csv", 'w') as outfile:
         writer = csv.writer(outfile)
         writer.writerow(["u(m/s)", "T(K)", "rho(kg/m3)", "pressure", "H2", "H", "O", "O2", "OH", "H2O", "HO2", "H2O2", "C", "CH", "CH2", "CH2(S)", "CH3", "CH4", "CO", "CO2", "HCO", "CH2O", "CH2OH", "CH3O", "CH3OH", "C2H", "C2H2",
                          "C2H3", "C2H4", "C2H5", "C2H6", "HCCO", "CH2CO", "HCCOH", "N", "NH", "NH2", "NH3", "NNH", "NO", "NO2", "N2O", "HNO", "CN", "HCN", "H2CN", "HCNN", "HCNO", "HOCN", "HNCO", "NCO", "N2", "AR", "C3H7", "C3H8", "CH2CHO", "CH3CHO"])
         writer.writerows(results)
 
-    with open("errorcode2.csv", "w") as outfile:
+    with open("errorcode.csv", "w") as outfile:
         writer = csv.writer(outfile)
         writer.writerow("error avlue", "error pressure index",
                         "error tempindex")

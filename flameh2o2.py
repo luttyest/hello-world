@@ -38,11 +38,7 @@ Itemperture = np.zeros(tempertureS)
 
 
 def flamespeedcal(test):
-    L = list(test)
-    print(L)
-    avalue = L[0]
-    pressureindex = L[1]
-    tempindex = L[2]
+    avalue, pressureindex, tempindex = test
     gas = ct.Solution('gri30.xml')
     pressureoutput = pressureindex*ct.one_atm
     gas.TP = tempindex, pressureoutput
