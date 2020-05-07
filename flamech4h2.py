@@ -2,13 +2,12 @@
 A freely-propagating, premixed hydrogen flat flame with multicomponent
 transport properties.
 
-
-O2:N2--1:4 to 1:2
+CH4:H2 defined by a 0 to 1
 """
 
-# presurre from 1 to 50    25 times
-# alist 1 to 10            10 times
-# temperature 300 to 1800 every 50    30 times
+# presurre from 1 to 50    25 times 
+# alist 1 to 10            10 times 
+# temperature 300 to 700 every 50    9 times
 
 import sys
 import numpy as np
@@ -21,42 +20,46 @@ import time
 import pandas as pd
 import os
 
+
 # Simulation parameters
 pressure = ct.one_atm  # pressure [Pa]
 Tin = 300.0  # unburned gas temperature [K]
 width = 0.03  # m
 loglevel = 1  # amount of diagnostic output (0 to 8)
 
-Ilist = 10
+Ilist = 11          #11
 aList = np.zeros(Ilist)
 flamespeed = []
 # IdealGasMix object used to compute mixture properties, set to the state of the
 # upstream fuel-air mixture
-PressureS = 25  # 25
+PressureS = 25      #25
 Ipressure = np.zeros(PressureS)
 
-tempertureS = 9  # 31
+tempertureS = 9    #9
 Itemperture = np.zeros(tempertureS)
 
-
 def flamespeedcal(test):
-    avalue,pressureindex, tempindex = test
+    L = list(test)
+    print(L)
+    avalue = L[0]
+    pressureindex = L[1] 
+    tempindex = L[2] 
     gas = ct.Solution('gri30.xml')
     pressureoutput = pressureindex*ct.one_atm
     gas.TP = tempindex, pressureoutput
+    fO2 = (1-avalue)*2.0 + avalue*0.5
     # 1*CH4 + 2*O2 = 2*H2O + 1*CO2
     # 1*H2 + 0.5*O2 = 1*H2O
-    # premixed gas composition
-    gas.X = {'CH4': 1, 'H2': 2, 'O2': 1, 'N2': avalue}
-  # premixed gas composition
+    gas.X = {'CH4': 1-avalue, 'H2': avalue, 'O2': fO2,
+            'N2': 4*fO2}  # premixed gas composition
     # Set up flame object
     f = ct.FreeFlame(gas, width=width)
     f.set_refine_criteria(ratio=3, slope=0.06, curve=0.12)
     #f.show_solution()
 
     # Solve with mixture-averaged transport model
-    #f.transport_model = 'Mix'
-    #f.solve(loglevel=loglevel, auto=True)
+    f.transport_model = 'Mix'
+    f.solve(loglevel=loglevel, auto=True)
 
     # Solve with the energy equation enabled
     #f.save('h2_adiabatic.xml', 'mix', 'solution with mixture-averaged transport')
@@ -75,7 +78,7 @@ def flamespeedcal(test):
     f.write_csv(output, quiet=False)
     print('multicomponent flamespeed = {0:7f} m/s'.format(f.u[0]))
     outputlist = []
-    #convert csv pandas
+    #convert csv to pandas
     data = pd.read_csv(output)
     #append order u,temp,rho
     u = data['u (m/s)'][0]
@@ -85,13 +88,16 @@ def flamespeedcal(test):
     outputlist.append(pressureoutput)
     # append elements max values
     data = data.drop(columns=['z (m)', 'u (m/s)',
-                              'V (1/s)', 'T (K)', 'rho (kg/m3)'])
+                            'V (1/s)', 'T (K)', 'rho (kg/m3)'])
     for name in data.columns:
         maxvalue = data[name].max()
         outputlist.append(maxvalue)
 
+    
     os.remove(output)
     return outputlist
+
+
 
 
 
@@ -119,7 +125,8 @@ def muti():
                 break
             except TimeoutError as error:
                 errorcode.append(totallist)
-                errorcode.append("function took longer than %d seconds" % error.args[1])
+                errorcode.append(
+                    "function took longer than %d seconds" % error.args[1])
             except ProcessExpired as error:
                 errorcode.append(totallist)
                 errorcode.append("%s. Exit code: %d" % (error, error.exitcode))
@@ -133,13 +140,14 @@ def muti():
         writer.writerow(["u(m/s)", "T(K)", "rho(kg/m3)", "pressure", "H2", "H", "O", "O2", "OH", "H2O", "HO2", "H2O2", "C", "CH", "CH2", "CH2(S)", "CH3", "CH4", "CO", "CO2", "HCO", "CH2O", "CH2OH", "CH3O", "CH3OH", "C2H", "C2H2",
                          "C2H3", "C2H4", "C2H5", "C2H6", "HCCO", "CH2CO", "HCCOH", "N", "NH", "NH2", "NH3", "NNH", "NO", "NO2", "N2O", "HNO", "CN", "HCN", "H2CN", "HCNN", "HCNO", "HOCN", "HNCO", "NCO", "N2", "AR", "C3H7", "C3H8", "CH2CHO", "CH3CHO"])
         writer.writerows(results)
-        
-    with open("errorcode2.csv","w") as outfile:
-        writer = csv.writer(outfile)
-        writer.writerow("error avlue","error pressure index", "error tempindex")
-        writer.writerows(errorcode)
-#plot
 
+    with open("errorcode2.csv", "w") as outfile:
+        writer = csv.writer(outfile)
+        writer.writerow("error avlue", "error pressure index",
+                        "error tempindex")
+        writer.writerows(errorcode)
+
+#plot
 
 def main():
     tic = time.perf_counter()
@@ -147,6 +155,7 @@ def main():
     #plot()
     toc = time.perf_counter()
     print(f"task took {toc - tic:0.4f} seconds")
+
 
 
 def plot():

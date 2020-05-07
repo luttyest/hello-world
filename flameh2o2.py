@@ -12,11 +12,13 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import cantera as ct
-import concurrent.futures
+from concurrent.futures import TimeoutError
+from pebble import ProcessPool, ProcessExpired
 import csv
 import time
 import pandas as pd
 import os
+
 # Simulation parameters
 pressure = ct.one_atm  # pressure [Pa]
 Tin = 300.0  # unburned gas temperature [K]
@@ -95,7 +97,9 @@ def flamespeedcal(test):
 
 # muti-processing
 def muti():
-    with concurrent.futures.ProcessPoolExecutor() as executor:
+    results = []
+    errorcode = []
+    with ProcessPool(max_workers=8) as pool:
         totallist = []
         for i in range(Ilist):
             aList[i] = 0.5+0.15*i
@@ -104,12 +108,36 @@ def muti():
                 for t in range(tempertureS):
                     Itemperture[t] = 300+50*t
                     totallist.append((aList[i], Ipressure[m], Itemperture[t]))
-        results = executor.map(flamespeedcal, totallist)
-        with open("finaloutput2data.csv", 'w') as outfile:
-            writer = csv.writer(outfile)
-            writer.writerow(["u(m/s)", "T(K)", "rho(kg/m3)", "pressure", "H2", "H", "O", "O2", "OH", "H2O", "HO2", "H2O2", "C", "CH", "CH2", "CH2(S)", "CH3", "CH4", "CO", "CO2", "HCO", "CH2O", "CH2OH", "CH3O", "CH3OH", "C2H", "C2H2",
-                             "C2H3", "C2H4", "C2H5", "C2H6", "HCCO", "CH2CO", "HCCOH", "N", "NH", "NH2", "NH3", "NNH", "NO", "NO2", "N2O", "HNO", "CN", "HCN", "H2CN", "HCNN", "HCNO", "HOCN", "HNCO", "NCO", "N2", "AR", "C3H7", "C3H8", "CH2CHO", "CH3CHO"])
-            writer.writerows(results)
+
+        future = pool.map(flamespeedcal, totallist, timeout=10000)
+        iterator = future.result()
+        while True:
+            try:
+                result = next(iterator)
+                results.append(result)
+            except StopIteration:
+                break
+            except TimeoutError as error:
+                errorcode.append(totallist)
+                errorcode.append("function took longer than %d seconds" % error.args[1])
+            except ProcessExpired as error:
+                errorcode.append(totallist)
+                errorcode.append("%s. Exit code: %d" % (error, error.exitcode))
+            except Exception as error:
+                errorcode.append(totallist)
+                errorcode.append("function raised %s" % error)
+                errorcode.append(error.traceback)
+
+    with open("finaloutput2data.csv", 'w') as outfile:
+        writer = csv.writer(outfile)
+        writer.writerow(["u(m/s)", "T(K)", "rho(kg/m3)", "pressure", "H2", "H", "O", "O2", "OH", "H2O", "HO2", "H2O2", "C", "CH", "CH2", "CH2(S)", "CH3", "CH4", "CO", "CO2", "HCO", "CH2O", "CH2OH", "CH3O", "CH3OH", "C2H", "C2H2",
+                         "C2H3", "C2H4", "C2H5", "C2H6", "HCCO", "CH2CO", "HCCOH", "N", "NH", "NH2", "NH3", "NNH", "NO", "NO2", "N2O", "HNO", "CN", "HCN", "H2CN", "HCNN", "HCNO", "HOCN", "HNCO", "NCO", "N2", "AR", "C3H7", "C3H8", "CH2CHO", "CH3CHO"])
+        writer.writerows(results)
+        
+    with open("errorcode2.csv","w") as outfile:
+        writer = csv.writer(outfile)
+        writer.writerow("error avlue","error pressure index", "error tempindex")
+        writer.writerows(errorcode)
 
 #plot
 
