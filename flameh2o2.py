@@ -44,7 +44,7 @@ def flamespeedcal(test):
     gas.TP = tempindex, pressureoutput
     # 1*CH4 + 2*O2 = 2*H2O + 1*CO2
     # 1*H2 + 0.5*O2 = 1*H2O
-    gas.X = {'CH4': 1, 'H2': 1, 'O2': 1/avalue, 'N2': 4/avalue}  # premixed gas composition
+    gas.X = {'CH4':1,'H2':1,'O2':1/avalue,'N2':4/avalue}
     # Set up flame object
     f = ct.FreeFlame(gas, width=width)
     f.set_refine_criteria(ratio=3, slope=0.06, curve=0.12)
@@ -98,7 +98,7 @@ def muti():
     with ProcessPool(max_workers=8) as pool:
         totallist = []
         for i in range(Ilist):
-            aList[i] = 0.5+0.2*i
+            aList[i] =0.5+0.15*i
             for m in range(PressureS):
                 Ipressure[m] = m*2 + 1
                 for t in range(tempertureS):

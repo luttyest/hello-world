@@ -102,7 +102,7 @@ def muti():
     with ProcessPool(max_workers=8) as pool:
         totallist = []
         for i in range(Ilist):
-            aList[i] = 2.0+0.5*i
+            aList[i] = 2.0+0.2*i
             for m in range(PressureS):
                 Ipressure[m] = m*2 + 1
                 for t in range(tempertureS):
