@@ -8,7 +8,7 @@ O2:N2--1:4 to 1:2
 
 # presurre from 1 to 50    25 times
 # alist 1 to 10            10 times
-# temperature 300 to 1800 every 50    30 times
+# temperature 300 to 700 every 50    9 times
 
 import sys
 import numpy as np
@@ -35,7 +35,7 @@ flamespeed = []
 PressureS = 25  # 25
 Ipressure = np.zeros(PressureS)
 
-tempertureS = 9  # 31
+tempertureS = 9  # 9
 Itemperture = np.zeros(tempertureS)
 
 
@@ -102,7 +102,7 @@ def muti():
     with ProcessPool(max_workers=8) as pool:
         totallist = []
         for i in range(Ilist):
-            aList[i] = 0.5+0.15*i
+            aList[i] = 2.0+0.5*i
             for m in range(PressureS):
                 Ipressure[m] = m*2 + 1
                 for t in range(tempertureS):
@@ -118,13 +118,10 @@ def muti():
             except StopIteration:
                 break
             except TimeoutError as error:
-                errorcode.append(totallist)
                 errorcode.append("function took longer than %d seconds" % error.args[1])
             except ProcessExpired as error:
-                errorcode.append(totallist)
                 errorcode.append("%s. Exit code: %d" % (error, error.exitcode))
             except Exception as error:
-                errorcode.append(totallist)
                 errorcode.append("function raised %s" % error)
                 errorcode.append(error.traceback)
 
@@ -136,11 +133,8 @@ def muti():
     if totallist == []:
         pass
     else:
-        with open("errorcode1.csv", "w") as outfile:
-            writer = csv.writer(outfile)
-            writer.writerow(["error avlue", "error pressure index",
-                             "error tempindex"])
-            writer.writerows(errorcode)
+        errorfile = open("errorcodeO2N2.txt", "w")
+        errorfile.write(errorcode)
 #plot
 
 
