@@ -33,7 +33,7 @@ flamespeed = []
 PressureS = 25  # 25
 Ipressure = np.zeros(PressureS)
 
-tempertureS = 9  # 31
+tempertureS = 9  # 9
 Itemperture = np.zeros(tempertureS)
 
 
@@ -98,7 +98,7 @@ def muti():
     with ProcessPool(max_workers=8) as pool:
         totallist = []
         for i in range(Ilist):
-            aList[i] = 0.5+0.15*i
+            aList[i] = 0.5+0.2*i
             for m in range(PressureS):
                 Ipressure[m] = m*2 + 1
                 for t in range(tempertureS):
@@ -133,11 +133,8 @@ def muti():
     if totallist == []:
         pass
     else:
-        with open("errorcode2.csv", "w") as outfile:
-            writer = csv.writer(outfile)
-            writer.writerow(["error avlue", "error pressure index",
-                             "error tempindex"])
-            writer.writerows(errorcode)
+        errorfile = open("errorcodeh2too2.txt", "w")
+        errorfile.write(errorcode)
 #plot
 
 
