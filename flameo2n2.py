@@ -134,7 +134,7 @@ def muti():
         pass
     else:
         errorfile = open("errorcodeO2N2.txt", "w")
-        errorfile.write(errorcode)
+        errorfile.write(str(errorcode))
 #plot
 
 
