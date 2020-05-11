@@ -51,8 +51,8 @@ def flamespeedcal(test):
     #f.show_solution()
 
     # Solve with mixture-averaged transport model
-    #f.transport_model = 'Mix'
-    #f.solve(loglevel=loglevel, auto=True)
+    f.transport_model = 'Mix'
+    f.solve(loglevel=loglevel, auto=True)
 
     # Solve with the energy equation enabled
     #f.save('h2_adiabatic.xml', 'mix', 'solution with mixture-averaged transport')
@@ -114,13 +114,13 @@ def muti():
             except StopIteration:
                 break
             except TimeoutError as error:
-                errorcode.append(totallist)
+                errorcode.append(test)
                 errorcode.append("function took longer than %d seconds" % error.args[1])
             except ProcessExpired as error:
-                errorcode.append(totallist)
+                errorcode.append(test)
                 errorcode.append("%s. Exit code: %d" % (error, error.exitcode))
             except Exception as error:
-                errorcode.append(totallist)
+                errorcode.append(test)
                 errorcode.append("function raised %s" % error)
                 errorcode.append(error.traceback)
 
@@ -130,7 +130,7 @@ def muti():
                          "C2H3", "C2H4", "C2H5", "C2H6", "HCCO", "CH2CO", "HCCOH", "N", "NH", "NH2", "NH3", "NNH", "NO", "NO2", "N2O", "HNO", "CN", "HCN", "H2CN", "HCNN", "HCNO", "HOCN", "HNCO", "NCO", "N2", "AR", "C3H7", "C3H8", "CH2CHO", "CH3CHO"])
         writer.writerows(results)
         
-    if totallist == []:
+    if errorcode == []:
         pass
     else:
         errorfile = open("errorcodeh2too2.txt", "w")
