@@ -48,10 +48,10 @@ for alpha in alphas:
         y_train, y_val = target[train_index], target[val_index]
 
         # instantiate model
-        model_shufflecv = MLPRegressor(activation='relu', solver='lbfgs',alpha=alpha, hidden_layer_sizes=(30,30,30,30,30), max_iter=10000000000000000000000)
+        model = MLPRegressor(activation='relu', solver='lbfgs',alpha=alpha, hidden_layer_sizes=(30,30,30,30,30), max_iter=10000000000000000000000)
         
         #calculate errors
-        train_error, val_error = calc_metrics(X_train, y_train, X_val, y_val, lasso)
+        train_error, val_error = calc_metrics(X_train, y_train, X_val, y_val, model)
         
         # append to appropriate list
         train_errors.append(train_error)
